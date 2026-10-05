@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Kuis Adril</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:linear-gradient(135deg,#0a1128,#1a237e,#4a148c);touch-action:none}
+#app{position:relative;width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column}
+#bgBintang{position:absolute;inset:0;pointer-events:none;z-index:1}
+.bintang{position:absolute;background:#fff;border-radius:50%;animation:twinkle 3s infinite}
+@keyframes twinkle{0%,100%{opacity:.3}50%{opacity:1}}
+#topbar{position:relative;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(0,0,0,.5);border-bottom:2px solid rgba(255,255,255,.1);z-index:5;flex-wrap:wrap;gap:6px}
+.info-box{color:#fff;font-size:12px;font-weight:700;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.badge{background:rgba(255,255,255,.1);border:1px solid #fff;border-radius:20px;padding:4px 12px;font-size:11px}
+.badge.gold{border-color:#ffd700;color:#ffd700}
+.badge.green{border-color:#00ff88;color:#00ff88}
+.badge.blue{border-color:#66aaff;color:#8ab4f8}
+.badge.pink{border-color:#ff66aa;color:#ff99cc}
+#main{flex:1;position:relative;display:flex;justify-content:center;align-items:center;padding:16px;overflow-y:auto;z-index:3}
+.quiz-box{background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(240,240,250,.98));border-radius:24px;padding:22px;width:100%;max-width:640px;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:pop .4s}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.q-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.q-num{background:#1a237e;color:#fff;padding:6px 16px;border-radius:20px;font-weight:800;font-size:13px}
+.q-timer{background:#2e7d32;color:#fff;padding:6px 18px;border-radius:20px;font-weight:800;font-size:16px;min-width:60px;text-align:center}
+.q-timer.warning{background:#c62828;animation:pulse .5s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.q-cat{color:#fff;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700}
+.q-text{font-size:1.2rem;font-weight:700;color:#0a1128;margin-bottom:16px;line-height:1.5;min-height:4.5rem}
+.q-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.q-choices button{background:#fff;border:3px solid #b0c7db;color:#1a237e;font-weight:700;font-size:13px;padding:14px 10px;border-radius:14px;cursor:pointer;text-align:left;box-shadow:0 4px 0 #8fa9c2;display:flex;align-items:center;gap:8px;transition:.15s}
+.q-choices button:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 #8fa9c2}
+.q-choices button:disabled{opacity:.7;cursor:not-allowed}
+.q-choices button .huruf{background:#1a237e;color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0;font-size:12px}
+.q-choices button.benar{background:#2ecc71!important;border-color:#1e8b4c!important;color:#fff!important;box-shadow:0 4px 0 #1a6b3a!important}
+.q-choices button.benar .huruf{background:#fff;color:#2ecc71}
+.q-choices button.salah{background:#e74c3c!important;border-color:#a83228!important;color:#fff!important;box-shadow:0 4px 0 #7e2620!important}
+.q-choices button.salah .huruf{background:#fff;color:#e74c3c}
+.q-feedback{text-align:center;font-weight:800;font-size:14px;margin-top:12px;min-height:22px;color:#0a1128}
+#overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,17,40,.97),rgba(74,20,140,.97));display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:10;padding:20px;text-align:center;overflow-y:auto}
+#overlay h1{color:#00ffff;font-size:26px;text-shadow:0 0 20px #00ffff;margin-bottom:10px}
+#overlay p{color:#ccc;font-size:13px;margin-bottom:6px;line-height:1.6}
+#overlay button{margin-top:8px;padding:13px 28px;font-size:14px;background:linear-gradient(135deg,#00ffff,#0088ff);color:#001;border:none;border-radius:12px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 5px 0 #005577;width:100%;max-width:340px}
+#overlay button:active{transform:translateY(3px);box-shadow:0 2px 0 #005577}
+#overlay button.green{background:linear-gradient(135deg,#00ff88,#00aa55);color:#002;box-shadow:0 5px 0 #006633}
+#overlay button.gold{background:linear-gradient(135deg,#ffd700,#ff8800);color:#000;box-shadow:0 5px 0 #aa5500}
+#overlay button.gray{background:linear-gradient(135deg,#666,#333);color:#fff;box-shadow:0 5px 0 #111}
+#overlay input{margin-top:10px;padding:14px 18px;border-radius:12px;border:2px solid rgba(255,255,255,.2);background:rgba(0,0,0,.5);color:#fff;font-size:15px;outline:none;text-align:center;width:100%;max-width:340px;font-family:inherit;font-weight:700}
+#overlay input:focus{border-color:#00ffff}
+#overlay .info{color:#fff;font-size:12px;line-height:1.8;margin:12px 0;text-align:left;background:rgba(255,255,255,.05);padding:12px 16px;border-radius:12px;max-width:340px}
+#overlay .info .val{color:#ffd700;font-weight:700}
+.rank-display{font-size:60px;margin:8px 0;animation:pulse2 2s infinite}
+@keyframes pulse2{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.hide{display:none !important}
+.lb-list{width:100%;max-width:420px;max-height:55vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.lb-row{background:linear-gradient(135deg,rgba(30,40,70,.9),rgba(15,20,40,.9));border-left:5px solid #00ffff;padding:10px 14px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;color:#fff;font-size:13px}
+.lb-row.rank-1{border-left-color:#ffd700;background:linear-gradient(135deg,rgba(60,50,0,.9),rgba(30,25,0,.9))}
+.lb-row.rank-2{border-left-color:#c0c0c0}
+.lb-row.rank-3{border-left-color:#cd7f32}
+.lb-row.me{border:2px solid #00ff88;box-shadow:0 0 20px rgba(0,255,136,.4)}
+.lb-row .medali{font-size:18px;margin-right:6px}
+.lb-row .poin{color:#ffd700;font-weight:800}
+#notif{position:absolute;top:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(10,17,40,.95),rgba(74,20,140,.95));padding:12px 24px;border-radius:14px;border:2px solid #00ffff;color:#00ffff;font-weight:700;font-size:13px;opacity:0;transition:opacity .3s;z-index:8;pointer-events:none;text-align:center;max-width:90%}
+#notif.show{opacity:1}
+.peringatan-keluar{position:fixed;inset:0;background:rgba(200,0,0,.95);display:none;justify-content:center;align-items:center;z-index:9999;flex-direction:column;padding:30px;text-align:center;color:#fff}
+.peringatan-keluar.show{display:flex}
+.peringatan-keluar h1{font-size:30px;margin-bottom:16px;animation:pulse3 .5s infinite}
+@keyframes pulse3{0%,100%{opacity:1}50%{opacity:.5}}
+.peringatan-keluar p{font-size:15px;line-height:1.7;margin-bottom:24px}
+.peringatan-keluar button{background:#fff;color:#c00;border:none;padding:14px 40px;border-radius:30px;font-weight:900;font-size:16px;cursor:pointer;font-family:inherit}
+.sertifikat{background:linear-gradient(135deg,#fff8dc,#ffe4b5);color:#333;border:12px double #c9a227;border-radius:16px;padding:28px;max-width:540px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.7);font-family:Georgia,serif;position:relative;animation:zoomIn .6s}
+@keyframes zoomIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.sertifikat .header{color:#c9a227;font-size:12px;letter-spacing:5px;margin-bottom:6px;font-weight:700}
+.sertifikat .judul{color:#8b6914;font-size:24px;font-weight:900;margin:10px 0;font-family:'Times New Roman',serif;letter-spacing:2px}
+.sertifikat .subjudul{color:#c9a227;font-size:12px;font-style:italic;margin-bottom:14px}
+.sertifikat .nama-besar{color:#8b6914;font-size:28px;font-weight:900;margin:16px 0;padding:12px;border-top:2px solid #c9a227;border-bottom:2px solid #c9a227;font-family:'Courier New',monospace;background:rgba(255,255,255,.3);border-radius:8px}
+.sertifikat .desc{font-size:13px;line-height:1.7;color:#555;margin:14px 0}
+.sertifikat .pita{position:absolute;top:-15px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#ffd700,#ff8800);color:#fff;padding:6px 30px;border-radius:20px;font-weight:900;font-size:13px;box-shadow:0 4px 15px rgba(255,200,0,.5);letter-spacing:2px}
+.sertifikat .ttd{margin-top:24px;display:flex;justify-content:space-around;align-items:flex-end}
+.sertifikat .ttd-box{text-align:center}
+.sertifikat .ttd-garis{width:130px;border-top:2px solid #8b6914;margin-top:6px;padding-top:4px;font-size:11px;color:#8b6914;font-weight:700}
+.sertifikat .ttd-nama{font-family:'Brush Script MT',cursive;font-size:28px;color:#8b6914;transform:rotate(-5deg)}
+#musicBtn{position:fixed;bottom:16px;right:16px;background:rgba(0,0,0,.6);border:2px solid #ffd700;color:#ffd700;width:48px;height:48px;border-radius:50%;font-size:20px;cursor:pointer;z-index:6;display:flex;align-items:center;justify-content:center}
+#musicBtn.off{border-color:#555;color:#555}
+@media (max-width:520px){.q-choices{grid-template-columns:1fr}.q-text{font-size:1rem}.sertifikat{padding:20px}.sertifikat .nama-besar{font-size:22px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="bgBintang"></div>
+  <div id="topbar">
+    <div class="info-box">
+      <span class="badge gold">🏆 <span id="poinSaya">0</span></span>
+      <span class="badge green">✅ <span id="benarSaya">0</span></span>
+      <span class="badge blue">📋 <span id="soalKe">0</span>/30</span>
+    </div>
+    <div class="info-box">
+      <span class="badge gold" id="rankBadge">🥉 Rookie</span>
+      <span class="badge pink" id="namaBadge">👤 -</span>
+    </div>
+  </div>
+  <div id="main">
+    <div class="quiz-box hide" id="quizBox">
+      <div class="q-top">
+        <span class="q-num">Soal <span id="nomorSoal">1</span>/30</span>
+        <span class="q-cat" id="kategori">SD</span>
+        <span class="q-timer" id="timerBox">15</span>
+      </div>
+      <div class="q-text" id="pertanyaanText">Loading...</div>
+      <div class="q-choices" id="pilihanBox"></div>
+      <div class="q-feedback" id="feedback"></div>
+    </div>
+  </div>
+  <div id="notif"></div>
+  <button id="musicBtn" title="On/Off Musik">🎵</button>
+</div>
+<div id="overlay"></div>
+<div class="peringatan-keluar" id="peringatanKeluar">
+  <h1>🚫 KAMU KELUAR!</h1>
+  <p>Soal akan diganti jadi <b>PERKULIAHAN</b> sebagai hukuman.<br>Jangan keluar lagi ya! 😉</p>
+  <button id="mulaiUlangBtn">LANJUTKAN</button>
+</div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+// ============================================================
+// 🎵 DAFTAR LAGU — MUTER BERURUTAN OTOMATIS
+// ============================================================
+// Taruh file mp3 di folder "musik" (sebelah file html ini)
+// Mau tambah/hapus lagu? Tinggal edit daftar di bawah.
+// Kalau lagu habis, otomatis ganti ke lagu berikutnya.
+// ============================================================
+var PLAYLIST_MUSIK = [
+  'lagu sad inggris.mp3',
+  'lagu sad3.mpg',
+  'menu.mp3'
+];
+var VOLUME_MUSIK = 1.5;
+
+// ===== FIREBASE =====
+var dbRef = null, firebaseOK = false;
+try {
+  firebase.initializeApp({
+    apiKey: "AIzaSyCTvQTUcX4phxqrKkN0L91vF7UkIidCY40",
+    authDomain: "kuishtml.firebaseapp.com",
+    databaseURL: "https://kuishtml-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "kuishtml",
+    storageBucket: "kuishtml.firebasestorage.app",
+    messagingSenderId: "686460169613",
+    appId: "1:686460169613:web:d52679254c4d3d931161c4"
+  });
+  dbRef = firebase.database().ref('kuisAdril');
+  firebaseOK = true;
+} catch(e) { console.error(e); }
+
+// ============================================================
+// 🎵 SISTEM MUSIK (Playlist Berurutan)
+// ============================================================
+var bgMusic = null;
+var musicEnabled = true;
+var idxPlaylist = 0;
+
+function mulaiMusik(){
+  if(bgMusic) return;
+  putarTrackSekarang();
+}
+
+function putarTrackSekarang(){
+  if(!musicEnabled) return;
+  if(bgMusic){
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
+  }
+  var src = PLAYLIST_MUSIK[idxPlaylist];
+  if(!src){
+    idxPlaylist = 0;
+    src = PLAYLIST_MUSIK[0];
+  }
+  bgMusic = new Audio(src);
+  bgMusic.loop = false;
+  bgMusic.volume = VOLUME_MUSIK;
+
+  bgMusic.addEventListener('ended', function(){
+    idxPlaylist = (idxPlaylist + 1) % PLAYLIST_MUSIK.length;
+    putarTrackSekarang();
+  });
+
+  bgMusic.play().catch(function(err){
+    console.log('Musik gagal: ' + src + ' — coba berikutnya');
+    idxPlaylist = (idxPlaylist + 1) % PLAYLIST_MUSIK.length;
+    if(idxPlaylist !== 0) putarTrackSekarang();
+  });
+}
+
+function toggleMusik(){
+  musicEnabled = !musicEnabled;
+  var btn = document.getElementById('musicBtn');
+  if(musicEnabled){
+    btn.classList.remove('off');
+    btn.textContent = '🎵';
+    if(!bgMusic) mulaiMusik();
+    else bgMusic.play();
+  } else {
+    btn.classList.add('off');
+    btn.textContent = '🔇';
+    if(bgMusic) bgMusic.pause();
+  }
+}
+document.getElementById('musicBtn').addEventListener('click', toggleMusik);
+
+// ============================================================
+// 🔊 EFEK SUARA
+// ============================================================
+var audioCtx = null;
+function initAudioCtx(){
+  if(audioCtx) return;
+  try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+}
+function sfxBenar(){
+  if(!audioCtx) return;
+  [523, 659, 784].forEach(function(f, i){
+    setTimeout(function(){
+      var o = audioCtx.createOscillator();
+      var g = audioCtx.createGain();
+      o.type = 'sine';
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + 0.2);
+    }, i * 80);
+  });
+}
+function sfxSalah(){
+  if(!audioCtx) return;
+  var o = audioCtx.createOscillator();
+  var g = audioCtx.createGain();
+  o.type = 'sawtooth';
+  o.frequency.setValueAtTime(200, audioCtx.currentTime);
+  o.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.3);
+  g.gain.setValueAtTime(0.12, audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(); o.stop(audioCtx.currentTime + 0.3);
+}
+
+// ============================================================
+// BANK SOAL
+// ============================================================
+var BANK_SOAL = [
+  // SD
+  {soal:"Hasil dari 5 + 7?",pilihan:["10","11","12","13"],jawaban:2,kategori:"SD"},
+  {soal:"Hewan yang bisa terbang?",pilihan:["Kucing","Burung","Ikan","Sapi"],jawaban:1,kategori:"SD"},
+  {soal:"Warna daun pada umumnya?",pilihan:["Merah","Hijau","Biru","Kuning"],jawaban:1,kategori:"SD"},
+  {soal:"Hasil dari 9 × 3?",pilihan:["21","24","27","30"],jawaban:2,kategori:"SD"},
+  {soal:"Ibu kota Indonesia?",pilihan:["Bandung","Jakarta","Surabaya","Medan"],jawaban:1,kategori:"SD"},
+  {soal:"Berapa jumlah kaki kucing?",pilihan:["2","3","4","6"],jawaban:2,kategori:"SD"},
+  {soal:"Hasil dari 20 - 8?",pilihan:["10","11","12","13"],jawaban:2,kategori:"SD"},
+  {soal:"Bunga yang berwarna merah?",pilihan:["Melati","Mawar","Anggrek","Tulip"],jawaban:1,kategori:"SD"},
+  {soal:"Hasil dari 100 : 5?",pilihan:["15","20","25","30"],jawaban:1,kategori:"SD"},
+  {soal:"Hewan terbesar di darat?",pilihan:["Kucing","Gajah","Ikan","Ayam"],jawaban:1,kategori:"SD"},
+
+  // SMP
+  {soal:"Hasil dari 15 × 4?",pilihan:["45","50","60","65"],jawaban:2,kategori:"SMP"},
+  {soal:"Rumus kimia air?",pilihan:["CO₂","H₂O","O₂","NaCl"],jawaban:1,kategori:"SMP"},
+  {soal:"Planet terdekat Matahari?",pilihan:["Venus","Bumi","Merkurius","Mars"],jawaban:2,kategori:"SMP"},
+  {soal:"Air membeku pada suhu?",pilihan:["0°C","10°C","-10°C","100°C"],jawaban:0,kategori:"SMP"},
+  {soal:"Presiden pertama Indonesia?",pilihan:["Soeharto","Soekarno","Habibie","Megawati"],jawaban:1,kategori:"SMP"},
+  {soal:"Organ memompa darah?",pilihan:["Paru-paru","Hati","Jantung","Ginjal"],jawaban:2,kategori:"SMP"},
+  {soal:"Bilangan prima terkecil?",pilihan:["0","1","2","3"],jawaban:2,kategori:"SMP"},
+  {soal:"Ibu kota Jepang?",pilihan:["Osaka","Kyoto","Tokyo","Nagoya"],jawaban:2,kategori:"SMP"},
+  {soal:"Hasil dari 12²?",pilihan:["124","144","154","164"],jawaban:1,kategori:"SMP"},
+  {soal:"Pulau terbesar Indonesia?",pilihan:["Jawa","Sumatra","Kalimantan","Sulawesi"],jawaban:2,kategori:"SMP"},
+  {soal:"Hewan air & darat?",pilihan:["Mamalia","Amfibi","Reptil","Aves"],jawaban:1,kategori:"SMP"},
+  {soal:"Jumlah warna pelangi?",pilihan:["5","6","7","8"],jawaban:2,kategori:"SMP"},
+  {soal:"Alat musik tiup kayu?",pilihan:["Gitar","Piano","Suling","Drum"],jawaban:2,kategori:"SMP"},
+  {soal:"Pencipta Indonesia Raya?",pilihan:["W.R. Supratman","Ismail Marzuki","C. Simanjuntak","Kusbini"],jawaban:0,kategori:"SMP"},
+  {soal:"Mamalia terbesar?",pilihan:["Gajah","Paus Biru","Jerapah","Badak"],jawaban:1,kategori:"SMP"},
+
+  // SMA
+  {soal:"√1764 = ?",pilihan:["38","40","42","44"],jawaban:2,kategori:"SMA"},
+  {soal:"3x+5=20, x = ?",pilihan:["3","4","5","6"],jawaban:2,kategori:"SMA"},
+  {soal:"Rumus asam sulfat?",pilihan:["HCl","H₂SO₄","HNO₃","CH₃COOH"],jawaban:1,kategori:"SMA"},
+  {soal:"Kecepatan cahaya?",pilihan:["3×10⁶","3×10⁸","3×10¹⁰","3×10⁵"],jawaban:1,kategori:"SMA"},
+  {soal:"5! = ?",pilihan:["60","100","120","150"],jawaban:2,kategori:"SMA"},
+  {soal:"sin(30°) = ?",pilihan:["0","0,5","0,707","1"],jawaban:1,kategori:"SMA"},
+  {soal:"Turunan x³?",pilihan:["x²","2x²","3x²","3x"],jawaban:2,kategori:"SMA"},
+  {soal:"log₁₀(1000) = ?",pilihan:["2","3","4","10"],jawaban:1,kategori:"SMA"},
+  {soal:"Hasil 2⁸?",pilihan:["128","256","512","1024"],jawaban:1,kategori:"SMA"},
+  {soal:"Energi kinetik = ?",pilihan:["mgh","½mv²","mc²","Fd"],jawaban:1,kategori:"SMA"},
+  {soal:"Biner 1011 = desimal?",pilihan:["9","11","13","15"],jawaban:1,kategori:"SMA"},
+  {soal:"Planet terbesar?",pilihan:["Saturnus","Neptunus","Jupiter","Uranus"],jawaban:2,kategori:"SMA"},
+  {soal:"Ibu kota Australia?",pilihan:["Sydney","Melbourne","Canberra","Perth"],jawaban:2,kategori:"SMA"},
+  {soal:"Sorting tercepat?",pilihan:["Bubble","Quick","Selection","Insertion"],jawaban:1,kategori:"SMA"},
+  {soal:"Organel penghasil energi?",pilihan:["Ribosom","Mitokondria","Nukleus","Vakuola"],jawaban:1,kategori:"SMA"},
+
+  // SMK
+  {soal:"Apa itu PKL di SMK?",pilihan:["Praktik Kerja Lapangan","Pendidikan Khusus Lanjutan","Pelajaran Kelas Lanjutan","Program Kerja Lokal"],jawaban:0,kategori:"SMK"},
+  {soal:"Alat ukur diameter dalam mesin?",pilihan:["Jangka sorong","Penggaris","Meteran","Busur"],jawaban:0,kategori:"SMK"},
+  {soal:"Fungsi kunci inggris?",pilihan:["Memutar baut","Mengukur","Memotong","Mengelas"],jawaban:0,kategori:"SMK"},
+  {soal:"Bahasa web frontend?",pilihan:["Python","JavaScript","C++","Java"],jawaban:1,kategori:"SMK"},
+  {soal:"Alat mengelas logam?",pilihan:["Palu","Las","Gergaji","Bor"],jawaban:1,kategori:"SMK"},
+  {soal:"Apa itu HTML?",pilihan:["HyperText Markup Language","High Tech Modern Lang","Home Tool Multi Lang","Hyper Transfer Mark Lang"],jawaban:0,kategori:"SMK"},
+  {soal:"Fungsi oli mesin?",pilihan:["Pelumas","Bahan bakar","Pembersih","Pendingin"],jawaban:0,kategori:"SMK"},
+  {soal:"Warna merah RGB?",pilihan:["(255,0,0)","(0,255,0)","(0,0,255)","(255,255,0)"],jawaban:0,kategori:"SMK"},
+  {soal:"Alat ukur tegangan listrik?",pilihan:["Voltmeter","Amperemeter","Ohmmeter","Wattmeter"],jawaban:0,kategori:"SMK"},
+  {soal:"Apa itu CV melamar kerja?",pilihan:["Curriculum Vitae","Catatan Vital","Cek Verifikasi","Cekatan Vital"],jawaban:0,kategori:"SMK"},
+  {soal:"Fungsi kapasitor?",pilihan:["Menyimpan muatan","Menghambat arus","Menguatkan sinyal","Mengubah tegangan"],jawaban:0,kategori:"SMK"},
+  {soal:"Alat potong besi?",pilihan:["Gergaji besi","Gunting","Pisau","Cutter"],jawaban:0,kategori:"SMK"},
+  {soal:"CSS untuk?",pilihan:["Styling tampilan","Database","Server","Jaringan"],jawaban:0,kategori:"SMK"},
+  {soal:"Apa itu API?",pilihan:["Application Programming Interface","Aplikasi Pribadi Indonesia","Alat Pemrogram Internal","Akses Program Internet"],jawaban:0,kategori:"SMK"},
+  {soal:"Sistem hidrolik?",pilihan:["Mengangkat beban berat","Menghitung","Memotong","Mengelas"],jawaban:0,kategori:"SMK"},
+
+  // KULIAH
+  {soal:"∫2x dx = ?",pilihan:["x²+C","2x²+C","x²/2+C","2x+C"],jawaban:0,kategori:"KULIAH"},
+  {soal:"Hex FF = desimal?",pilihan:["240","250","255","256"],jawaban:2,kategori:"KULIAH"},
+  {soal:"e^(iπ) = ?",pilihan:["0","1","-1","i"],jawaban:2,kategori:"KULIAH"},
+  {soal:"Quick Sort rata-rata?",pilihan:["O(n)","O(n log n)","O(n²)","O(2ⁿ)"],jawaban:1,kategori:"KULIAH"},
+  {soal:"Akar x²+6x+9 = 0?",pilihan:["-3 kembar","3 kembar","-9","9"],jawaban:0,kategori:"KULIAH"},
+  {soal:"φ (phi) emas?",pilihan:["1,414","1,618","2,718","3,142"],jawaban:1,kategori:"KULIAH"},
+  {soal:"Hukum termodinamika ke-2?",pilihan:["Entropi","Energi","Massa","Gravitasi"],jawaban:0,kategori:"KULIAH"},
+  {soal:"Dijkstra untuk?",pilihan:["Jalur terpendek","Sorting","Searching","Hashing"],jawaban:0,kategori:"KULIAH"},
+  {soal:"Rumus Einstein?",pilihan:["E=mc²","F=ma","V=IR","PV=nRT"],jawaban:0,kategori:"KULIAH"},
+  {soal:"Big O binary search?",pilihan:["O(n)","O(log n)","O(n²)","O(1)"],jawaban:1,kategori:"KULIAH"},
+  {soal:"NPK pada pupuk?",pilihan:["Nitrogen, Fosfor, Kalium","Natrium, Posfor, Kalsium","Nitrogen, Posfor, Karbon","Natrium, Potassium, Kalsium"],jawaban:0,kategori:"KULIAH"},
+  {soal:"Prima terbesar < 100?",pilihan:["89","91","97","99"],jawaban:2,kategori:"KULIAH"}
+];
+
+// ===== RANK =====
+var DAFTAR_RANK = [
+  {nama:'🥉 Rookie',minPoin:0,warna:'#cd7f32'},
+  {nama:'🥈 Bronze',minPoin:500,warna:'#cd7f32'},
+  {nama:'🥇 Silver',minPoin:1500,warna:'#c0c0c0'},
+  {nama:'💎 Gold',minPoin:3500,warna:'#ffd700'},
+  {nama:'🏆 Platinum',minPoin:7000,warna:'#00e5ff'},
+  {nama:'👑 Diamond',minPoin:12000,warna:'#b388ff'},
+  {nama:'⭐ Master',minPoin:20000,warna:'#ff4081'},
+  {nama:'🔥 Legend',minPoin:35000,warna:'#ff6600'},
+  {nama:'🌌 Mythic',minPoin:60000,warna:'#ff00ff'}
+];
+function hitungRank(p){
+  var r = DAFTAR_RANK[0];
+  for(var i = 0; i < DAFTAR_RANK.length; i++){
+    if(p >= DAFTAR_RANK[i].minPoin) r = DAFTAR_RANK[i];
+    else break;
+  }
+  return r;
+}
+
+// ===== STATE =====
+var myId = 'p_' + Math.random().toString(36).substr(2, 9);
+var myNama = '';
+var myPoin = 0;
+var soalSudahDijawab = [];
+var soalPemain = [];
+var indeksSoal = 0;
+var sudahJawab = false;
+var waktuMulaiSoal = 0;
+var timerInterval = null;
+var DURASI_SOAL = 15000;
+var TOTAL_SOAL = 30;
+var gameRunning = false;
+var sudahResetKarenaKeluar = false;
+var lawanPoinTerakhir = 0;
+
+function showNotif(msg, color){
+  color = color || '#00ffff';
+  var el = document.getElementById('notif');
+  el.textContent = msg;
+  el.style.color = color;
+  el.style.borderColor = color;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(function(){ el.classList.remove('show'); }, 2200);
+}
+function escapeHtml(t){ if(!t) return ''; var d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+function showOverlayHTML(h){ var ov = document.getElementById('overlay'); ov.innerHTML = h; ov.classList.remove('hide'); }
+function acakSoal(arr){ var a = arr.slice(); for(var i = a.length-1; i > 0; i--){ var j = Math.floor(Math.random()*(i+1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+
+function loadProfil(){
+  try {
+    var n = localStorage.getItem('GamekuisNama');
+    var p = localStorage.getItem('GanekuisPoin');
+    var s = localStorage.getItem('GamekuisSoal');
+    var i = localStorage.getItem('GamekuisId');
+    if(n) myNama = n;
+    if(p) myPoin = parseInt(p) || 0;
+    if(s) soalSudahDijawab = JSON.parse(s) || [];
+    if(i) myId = i;
+    else localStorage.setItem('GamekuisId', myId);
+  } catch(e){}
+}
+function simpanProfil(){
+  try {
+    localStorage.setItem('GamekuisNama', myNama);
+    localStorage.setItem('GamekuisPoin', myPoin);
+    localStorage.setItem('GamekuisSoal', JSON.stringify(soalSudahDijawab));
+    localStorage.setItem('GamekuisId', myId);
+  } catch(e){}
+}
+loadProfil();
+
+function buatBintang(){
+  var bg = document.getElementById('bgBintang');
+  bg.innerHTML = '';
+  for(var i = 0; i < 40; i++){
+    var b = document.createElement('div');
+    b.className = 'bintang';
+    b.style.left = Math.random() * 100 + '%';
+    b.style.top = Math.random() * 100 + '%';
+    var size = 1 + Math.random() * 2;
+    b.style.width = size + 'px';
+    b.style.height = size + 'px';
+    b.style.animationDelay = (Math.random() * 3) + 's';
+    bg.appendChild(b);
+  }
+}
+buatBintang();
+
+// ============================================================
+// PILIH 30 SOAL
+// ============================================================
+function pilihSoalBaru(paksaKuliah){
+  var soalTersedia = BANK_SOAL.filter(function(s, idx){
+    return soalSudahDijawab.indexOf(idx) === -1;
+  });
+  if(paksaKuliah){
+    soalTersedia = BANK_SOAL.filter(function(s){ return s.kategori === 'KULIAH'; });
+  }
+  if(soalTersedia.length < TOTAL_SOAL){
+    soalSudahDijawab = [];
+    simpanProfil();
+    soalTersedia = BANK_SOAL.slice();
+    showNotif('📚 Soal direset — main lagi dari awal!', '#ffd700');
+  }
+  soalPemain = acakSoal(soalTersedia).slice(0, TOTAL_SOAL);
+  return soalPemain;
+}
+    </script>
+
+  <script>
+// ============================================================
+// MENU UTAMA
+// ============================================================
+function showMenu(){
+  var rank = hitungRank(myPoin);
+  var html = '<h1>🎓 GAME kUIS</h1>';
+  html += '<p style="color:#ccc;font-size:13px;">Kuis 30 soal • Rank • Sertifikat</p>';
+  html += '<p style="color:#ccc;font-size:10px;">kalo mau putar lagu pencet 2x logo musik dibawah</p>';
+  html += '<div class="rank-display" style="color:' + rank.warna + ';">' + rank.nama.split(' ')[0] + '</div>';
+  html += '<div style="color:' + rank.warna + ';font-weight:800;font-size:16px;margin-bottom:12px;">' + rank.nama + '</div>';
+  html += '<div class="info">';
+  html += '<div>👤 Nama: <span class="val">' + (myNama ? escapeHtml(myNama) : 'Belum diisi') + '</span></div>';
+  html += '<div>📊 Poin: <span class="val">' + myPoin + '</span></div>';
+  html += '<div>📝 Soal sudah dijawab: <span class="val">' + soalSudahDijawab.length + '</span></div>';
+  html += '<div>🎯 Soal per sesi: <span class="val">30</span></div>';
+  html += '</div>';
+  html += '<button class="green" id="btnMulai">▶ MULAI KUIS</button>';
+  html += '<button class="gold" id="btnLeaderboard">🏆 LEADERBOARD</button>';
+  if(myNama){
+    html += '<button class="gray" id="btnGantiNama">✏️ GANTI NAMA</button>';
+  }
+  showOverlayHTML(html);
+
+  document.getElementById('btnMulai').onclick = function(){
+    if(!myNama) showIsiNama();
+    else mulaiKuis(false);
+  };
+  document.getElementById('btnLeaderboard').onclick = tampilkanLeaderboard;
+  if(document.getElementById('btnGantiNama')){
+    document.getElementById('btnGantiNama').onclick = showIsiNama;
+  }
+  if(bgMusic && musicEnabled && bgMusic.paused) bgMusic.play();
+}
+
+// ============================================================
+// ISI / GANTI NAMA
+// ============================================================
+function showIsiNama(){
+  var html = '<h1>👤 ISI NAMA</h1>';
+  html += '<p style="color:#ccc;font-size:13px;">Nama ini akan muncul di leaderboard</p>';
+  if(myNama){
+    html += '<p style="color:#ff6600;font-size:12px;">⚠️ Nama sekarang: <b>' + escapeHtml(myNama) + '</b></p>';
+    html += '<p style="color:#aaa;font-size:11px;">Ganti nama = poin & rank tetap sama</p>';
+  }
+  html += '<input type="text" id="inputNama" placeholder="Nama kamu..." maxlength="15" value="' + escapeHtml(myNama) + '">';
+  html += '<button class="green" id="btnSimpan">✅ SIMPAN</button>';
+  if(myNama) html += '<button class="gray" id="btnBatal">⬅ BATAL</button>';
+  showOverlayHTML(html);
+
+  document.getElementById('inputNama').focus();
+  document.getElementById('btnSimpan').onclick = function(){
+    var n = document.getElementById('inputNama').value.trim();
+    if(!n || n.length < 2){ showNotif('❌ Nama minimal 2 huruf!', '#ff0066'); return; }
+    myNama = n.slice(0, 15);
+    simpanProfil();
+    kirimKeLeaderboard();
+    showNotif('✅ Nama disimpan: ' + myNama, '#00ff88');
+    setTimeout(showMenu, 600);
+  };
+  if(document.getElementById('btnBatal')){
+    document.getElementById('btnBatal').onclick = showMenu;
+  }
+}
+
+// ============================================================
+// MULAI KUIS
+// ============================================================
+function mulaiKuis(paksaKuliah){
+  pilihSoalBaru(paksaKuliah);
+  indeksSoal = 0;
+  gameRunning = true;
+  document.getElementById('overlay').classList.add('hide');
+  document.getElementById('quizBox').classList.remove('hide');
+  document.getElementById('benarSaya').textContent = '0';
+  document.getElementById('soalKe').textContent = '0';
+  mulaiSoalSekarang();
+}
+
+// ============================================================
+// TAMPILKAN SOAL
+// ============================================================
+function mulaiSoalSekarang(){
+  if(!gameRunning) return;
+  if(indeksSoal >= soalPemain.length){ selesaiKuis(); return; }
+  sudahJawab = false;
+  var soal = soalPemain[indeksSoal];
+
+  document.getElementById('nomorSoal').textContent = indeksSoal + 1;
+  document.getElementById('soalKe').textContent = indeksSoal + 1;
+  document.getElementById('pertanyaanText').textContent = soal.soal;
+
+  var kat = document.getElementById('kategori');
+  kat.textContent = soal.kategori;
+  if(soal.kategori === 'SD') kat.style.background = '#4caf50';
+  else if(soal.kategori === 'SMP') kat.style.background = '#2196f3';
+  else if(soal.kategori === 'SMA') kat.style.background = '#ff9800';
+  else if(soal.kategori === 'SMK') kat.style.background = '#9c27b0';
+  else kat.style.background = '#e91e63';
+
+  var box = document.getElementById('pilihanBox');
+  box.innerHTML = '';
+  var huruf = ['A', 'B', 'C', 'D'];
+  soal.pilihan.forEach(function(pil, idx){
+    var btn = document.createElement('button');
+    btn.innerHTML = '<span class="huruf">' + huruf[idx] + '</span><span>' + pil + '</span>';
+    btn.onclick = function(){ jawabPilih(idx, btn); };
+    box.appendChild(btn);
+  });
+
+  document.getElementById('feedback').textContent = '';
+  waktuMulaiSoal = Date.now();
+  if(timerInterval) clearInterval(timerInterval);
+  updateTimer();
+  timerInterval = setInterval(function(){
+    updateTimer();
+    if(Date.now() - waktuMulaiSoal >= DURASI_SOAL){
+      clearInterval(timerInterval);
+      timerInterval = null;
+      if(!sudahJawab) waktuHabis();
+    }
+  }, 100);
+}
+
+function updateTimer(){
+  var sisa = Math.max(0, Math.ceil((DURASI_SOAL - (Date.now() - waktuMulaiSoal)) / 1000));
+  var el = document.getElementById('timerBox');
+  el.textContent = sisa;
+  el.classList.toggle('warning', sisa <= 5);
+}
+
+// ============================================================
+// JAWAB
+// ============================================================
+function jawabPilih(idx, btn){
+  if(sudahJawab || !gameRunning) return;
+  sudahJawab = true;
+  if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+  initAudioCtx();
+
+  var soal = soalPemain[indeksSoal];
+  var semua = document.querySelectorAll('#pilihanBox button');
+  semua.forEach(function(b){ b.disabled = true; });
+
+  var benar = (idx === soal.jawaban);
+  var poin = 0;
+
+  if(benar){
+    btn.classList.add('benar');
+    sfxBenar();
+    var waktu = Date.now() - waktuMulaiSoal;
+    var bonus = waktu < 3000 ? 5 : waktu < 6000 ? 3 : waktu < 10000 ? 1 : 0;
+    var dasar = 10;
+    if(soal.kategori === 'SD') dasar = 5;
+    else if(soal.kategori === 'SMP') dasar = 10;
+    else if(soal.kategori === 'SMA') dasar = 15;
+    else if(soal.kategori === 'SMK') dasar = 20;
+    else if(soal.kategori === 'KULIAH') dasar = 30;
+    poin = dasar + bonus;
+    myPoin += poin;
+    simpanProfil();
+    document.getElementById('feedback').textContent = '✅ Benar! +' + poin + ' poin' + (bonus > 0 ? ' 🔥' : '');
+    document.getElementById('feedback').style.color = '#2e7d32';
+  } else {
+    btn.classList.add('salah');
+    semua[soal.jawaban].classList.add('benar');
+    sfxSalah();
+    document.getElementById('feedback').textContent = '❌ Salah. Jawaban: ' + soal.pilihan[soal.jawaban];
+    document.getElementById('feedback').style.color = '#c62828';
+  }
+
+  var soalIdx = BANK_SOAL.indexOf(soal);
+  if(soalIdx >= 0 && soalSudahDijawab.indexOf(soalIdx) === -1){
+    soalSudahDijawab.push(soalIdx);
+    simpanProfil();
+  }
+
+  document.getElementById('poinSaya').textContent = myPoin;
+  updateRankBadge();
+  var benarSkr = parseInt(document.getElementById('benarSaya').textContent) + (benar ? 1 : 0);
+  document.getElementById('benarSaya').textContent = benarSkr;
+
+  if(firebaseOK && myNama) kirimKeLeaderboard();
+  cekNyalip();
+
+  var idxLama = indeksSoal;
+  setTimeout(function(){
+    if(indeksSoal === idxLama) lanjutOtomatis();
+  }, 2000);
+}
+
+function waktuHabis(){
+  if(sudahJawab) return;
+  sudahJawab = true;
+  var soal = soalPemain[indeksSoal];
+  var semua = document.querySelectorAll('#pilihanBox button');
+  semua.forEach(function(b){ b.disabled = true; });
+  semua[soal.jawaban].classList.add('benar');
+  document.getElementById('feedback').textContent = '⏰ Habis! Jawaban: ' + soal.pilihan[soal.jawaban];
+  document.getElementById('feedback').style.color = '#ff6600';
+  sfxSalah();
+
+  var soalIdx = BANK_SOAL.indexOf(soal);
+  if(soalIdx >= 0 && soalSudahDijawab.indexOf(soalIdx) === -1){
+    soalSudahDijawab.push(soalIdx);
+    simpanProfil();
+  }
+
+  var idxLama = indeksSoal;
+  setTimeout(function(){
+    if(indeksSoal === idxLama) lanjutOtomatis();
+  }, 2000);
+}
+
+function lanjutOtomatis(){
+  indeksSoal++;
+  if(indeksSoal >= soalPemain.length){ selesaiKuis(); return; }
+  mulaiSoalSekarang();
+}
+
+// ============================================================
+// SELESAI KUIS
+// ============================================================
+function selesaiKuis(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+  gameRunning = false;
+  document.getElementById('quizBox').classList.add('hide');
+
+  var benarSaya = parseInt(document.getElementById('benarSaya').textContent) || 0;
+  var sempurna = benarSaya === TOTAL_SOAL;
+
+  if(firebaseOK && myNama) kirimKeLeaderboard();
+
+  if(sempurna){
+    tampilkanSertifikat();
+  } else {
+    var html = '<h1>🎉 SELESAI</h1>';
+    html += '<div class="info">';
+    html += '<div>✅ Benar: <span class="val">' + benarSaya + '/30</span></div>';
+    html += '<div>📊 Poin: <span class="val">' + myPoin + '</span></div>';
+    html += '<div>🏆 Rank: <span class="val">' + hitungRank(myPoin).nama + '</span></div>';
+    html += '</div>';
+    if(benarSaya >= 25){
+      html += '<p style="color:#ffd700;font-weight:800;">Hampir sempurna! Butuh 30/30 untuk sertifikat 🎓</p>';
+    }
+    html += '<button class="green" id="btnLagi">🔄 MAIN LAGI</button>';
+    html += '<button class="gold" id="btnLB">🏆 LEADERBOARD</button>';
+    html += '<button class="gray" id="btnMenu">🏠 MENU</button>';
+    showOverlayHTML(html);
+    document.getElementById('btnLagi').onclick = function(){ mulaiKuis(false); };
+    document.getElementById('btnLB').onclick = tampilkanLeaderboard;
+    document.getElementById('btnMenu').onclick = showMenu;
+  }
+}
+
+// ============================================================
+// SERTIFIKAT
+// ============================================================
+function tampilkanSertifikat(){
+  var tanggal = new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+  var html = '<div class="sertifikat">';
+  html += '<div class="pita">🏆 SEMPURNA 30/30</div>';
+  html += '<div class="header">SERTIFIKAT PENGHARGAAN</div>';
+  html += '<div class="judul">Game kuis</div>';
+  html += '<div class="subjudul">~ Certificated Achievement ~</div>';
+  html += '<p class="desc">Diberikan kepada:</p>';
+  html += '<div class="nama-besar">' + escapeHtml(myNama) + '</div>';
+  html += '<p class="desc"> Selamat Telah menyelesaikan <b>30 soal kuis dengan SEMPURNA (30/30)</b><br>dengan total poin <b>' + myPoin + '</b></p>';
+  html += '<p class="desc"><b>Tanggal:</b> ' + tanggal + '</p>';
+  html += '<div class="ttd">';
+  html += '<div class="ttd-box"><div class="ttd-nama">Drilz</div><div class="ttd-garis">Pembuat</div></div>';
+  html += '</div>';
+  html += '</div>';
+  html += '<button class="green" id="btnLagi" style="margin-top:14px;">🔄 MAIN LAGI</button>';
+  html += '<button class="gold" id="btnLB">🏆 LEADERBOARD</button>';
+  showOverlayHTML(html);
+  document.getElementById('btnLagi').onclick = function(){ mulaiKuis(false); };
+  document.getElementById('btnLB').onclick = tampilkanLeaderboard;
+}
+
+// ============================================================
+// LEADERBOARD
+// ============================================================
+function tampilkanLeaderboard(){
+  showOverlayHTML('<h1>🏆 LEADERBOARD</h1><p style="color:#888;">Memuat...</p>');
+  if(!firebaseOK){
+    showOverlayHTML('<h1>🏆 LEADERBOARD</h1><p style="color:#ff0066;">❌ Firebase tidak terhubung</p><button class="gray" id="btnBack">⬅ KEMBALI</button>');
+    document.getElementById('btnBack').onclick = showMenu;
+    return;
+  }
+  dbRef.child('leaderboard').once('value').then(function(snap){
+    var data = snap.val() || {};
+    var arr = [];
+    Object.keys(data).forEach(function(k){
+      var d = data[k];
+      if(d && d.nama) arr.push({id:k, nama:d.nama, poin:d.poin || 0});
+    });
+    arr.sort(function(a, b){ return b.poin - a.poin; });
+
+    // 🏆 Cek posisi saya
+    var posisiSaya = arr.findIndex(function(p){ return p.id === myId; });
+    var rankSaya = hitungRank(myPoin);
+
+    var html = '<h1>🏆 LEADERBOARD</h1>';
+    html += '<p style="color:#00ffff;font-size:12px;">Top pemain kuis • ' + arr.length + ' pemain</p>';
+    
+    // Tampilkan posisi saya di atas
+    if(myNama && posisiSaya >= 0){
+      html += '<div style="background:linear-gradient(135deg,rgba(0,255,136,.2),rgba(0,136,255,.2));border:2px solid #00ff88;border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;color:#fff;font-size:13px;font-weight:700;">';
+      html += '<span>👤 ' + escapeHtml(myNama) + ' (Kamu)</span>';
+      html += '<span>#' + (posisiSaya + 1) + ' • ' + myPoin + ' poin • <span style="color:' + rankSaya.warna + ';">' + rankSaya.nama + '</span></span>';
+      html += '</div>';
+    }
+
+    html += '<div class="lb-list">';
+    if(arr.length === 0){
+      html += '<div style="color:#888;text-align:center;padding:20px;">Belum ada yang main</div>';
+    } else {
+      arr.slice(0, 50).forEach(function(p, i){
+        var cls = 'lb-row';
+        if(i === 0) cls += ' rank-1';
+        else if(i === 1) cls += ' rank-2';
+        else if(i === 2) cls += ' rank-3';
+        if(p.id === myId) cls += ' me';
+        
+        // 🏅 Medali / Rank nomor
+        var posisi = i + 1;
+        var posisiTeks = posisi === 1 ? '🥇' : posisi === 2 ? '🥈' : posisi === 3 ? '🥉' : '#' + posisi;
+        
+        // 🏆 Rank tier pemain ini
+        var rankPemain = hitungRank(p.poin);
+        
+        html += '<div class="' + cls + '" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;">';
+        html += '<span style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">';
+        html += '<span class="medali" style="font-size:16px;flex-shrink:0;">' + posisiTeks + '</span>';
+        html += '<span style="display:flex;flex-direction:column;min-width:0;flex:1;">';
+        html += '<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(p.nama) + (p.id === myId ? ' <span style="color:#00ff88;">(Kamu)</span>' : '') + '</span>';
+        html += '<span style="font-size:10px;color:' + rankPemain.warna + ';font-weight:700;">' + rankPemain.nama + '</span>';
+        html += '</span>';
+        html += '</span>';
+        html += '<span class="poin" style="color:#ffd700;font-weight:800;flex-shrink:0;">' + p.poin + '</span>';
+        html += '</div>';
+      });
+    }
+    html += '</div>';
+    html += '<button class="gray" id="btnBack">⬅ KEMBALI</button>';
+    showOverlayHTML(html);
+    document.getElementById('btnBack').onclick = showMenu;
+  });
+}
+
+// ============================================================
+// KIRIM LEADERBOARD
+// ============================================================
+function kirimKeLeaderboard(){
+ if(!firebaseOK || !myNama) return;
+  var rank = hitungRank(myPoin);
+  dbRef.child('leaderboard/' + myId).set({
+    nama: myNama,
+    poin: myPoin,
+    rank: rank.nama,
+    update: Date.now()
+  });
+}
+
+function updateRankBadge(){
+  var rank = hitungRank(myPoin);
+  var el = document.getElementById('rankBadge');
+  el.textContent = rank.nama;
+  el.style.color = rank.warna;
+  el.style.borderColor = rank.warna;
+  document.getElementById('poinSaya').textContent = myPoin;
+  document.getElementById('namaBadge').textContent = '👤 ' + (myNama || '-');
+}
+
+// ============================================================
+// CEK NYALIP
+// ============================================================
+function cekNyalip(){
+  if(!firebaseOK || !myNama) return;
+  dbRef.child('leaderboard').once('value').then(function(snap){
+    var data = snap.val() || {};
+    var arr = [];
+    Object.keys(data).forEach(function(k){
+      var d = data[k];
+      if(d && d.nama) arr.push({id:k, nama:d.nama, poin:d.poin || 0});
+    });
+    arr.sort(function(a,b){ return b.poin - a.poin; });
+    var posisiSaya = arr.findIndex(function(p){ return p.id === myId; });
+    if(posisiSaya > 0){
+      var diAtas = arr[posisiSaya - 1];
+      if(lawanPoinTerakhir > 0 && diAtas.poin > lawanPoinTerakhir){
+        tampilNotifNyalip(diAtas.nama);
+      }
+      lawanPoinTerakhir = diAtas.poin;
+    }
+  });
+}
+
+function tampilNotifNyalip(nama){
+  var div = document.createElement('div');
+  div.style.cssText = 'position:fixed;top:100px;right:20px;background:linear-gradient(135deg,#ff0066,#cc0044);color:#fff;padding:14px 20px;border-radius:14px;font-weight:800;font-size:13px;z-index:999;box-shadow:0 10px 30px rgba(255,0,102,.5);max-width:280px;';
+  div.innerHTML = '⚠️ <b>' + escapeHtml(nama) + '</b> nyalip kamu di leaderboard!';
+  document.body.appendChild(div);
+  setTimeout(function(){
+    div.style.transition = 'opacity .5s, transform .5s';
+    div.style.opacity = '0';
+    div.style.transform = 'translateX(300px)';
+    setTimeout(function(){ div.remove(); }, 500);
+  }, 4000);
+}
+  </script>
+  <script>
+// ============================================================
+// ANTI-CHEAT: DETEKSI KELUAR HALAMAN
+// ============================================================
+function tanganiKeluar(){
+  if(!gameRunning) return;
+  if(sudahResetKarenaKeluar) return;
+  sudahResetKarenaKeluar = true;
+
+  if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+  gameRunning = false;
+  indeksSoal = 0;
+  sudahJawab = false;
+
+  document.getElementById('peringatanKeluar').classList.add('show');
+  document.getElementById('quizBox').classList.add('hide');
+}
+
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden && gameRunning){
+    tanganiKeluar();
+  }
+});
+
+window.addEventListener('blur', function(){
+  setTimeout(function(){
+    if(gameRunning && (document.hidden || !document.hasFocus())){
+      tanganiKeluar();
+    }
+  }, 300);
+});
+
+document.getElementById('mulaiUlangBtn').addEventListener('click', function(){
+  document.getElementById('peringatanKeluar').classList.remove('show');
+  sudahResetKarenaKeluar = false;
+  mulaiKuis(true);
+  showNotif('📚 Soal diganti jadi PERKULIAHAN!', '#ff0066');
+});
+
+// ============================================================
+// INIT
+// ============================================================
+function init(){
+  updateRankBadge();
+  buatBintang();
+  showMenu();
+
+  // Mulai musik (butuh interaksi user dulu — klik pertama)
+  document.addEventListener('click', function startMusicOnce(){
+    if(musicEnabled && !bgMusic) mulaiMusik();
+    document.removeEventListener('click', startMusicOnce);
+  }, {once:true});
+  document.addEventListener('touchstart', function startMusicOnce2(){
+    if(musicEnabled && !bgMusic) mulaiMusik();
+    document.removeEventListener('touchstart', startMusicOnce2);
+  }, {once:true});
+
+  if(!firebaseOK){
+    setTimeout(function(){
+      showNotif('⚠️ Firebase tidak terhubung', '#ff0066');
+    }, 1500);
+  } else {
+    setTimeout(function(){
+      dbRef.child('leaderboard').once('value').then(function(snap){
+        var data = snap.val() || {};
+        var arr = [];
+        Object.keys(data).forEach(function(k){
+          var d = data[k];
+          if(d && d.nama) arr.push({id:k, poin:d.poin || 0});
+        });
+        arr.sort(function(a,b){ return b.poin - a.poin; });
+        var posSaya = arr.findIndex(function(p){ return p.id === myId; });
+        if(posSaya > 0){
+          lawanPoinTerakhir = arr[posSaya - 1].poin;
+        }
+      });
+    }, 1000);
+
+    dbRef.child('leaderboard').on('value', function(snap){
+      if(!gameRunning) return;
+      var data = snap.val() || {};
+      var arr = [];
+      Object.keys(data).forEach(function(k){
+        var d = data[k];
+        if(d && d.nama) arr.push({id:k, nama:d.nama, poin:d.poin || 0});
+      });
+      arr.sort(function(a,b){ return b.poin - a.poin; });
+      var posSaya = arr.findIndex(function(p){ return p.id === myId; });
+      if(posSaya > 0){
+        var diAtas = arr[posSaya - 1];
+        if(lawanPoinTerakhir > 0 && diAtas.poin > lawanPoinTerakhir){
+          tampilNotifNyalip(diAtas.nama);
+        }
+        lawanPoinTerakhir = diAtas.poin;
+      }
+    });
+  }
+}
+
+// ============================================================
+// SEBELUM KELUAR
+// ============================================================
+window.addEventListener('beforeunload', function(){
+  simpanProfil();
+  if(firebaseOK && myNama && myPoin > 0){
+    var rank = hitungRank(myPoin);
+    dbRef.child('leaderboard/' + myId).set({
+      nama: myNama,
+      poin: myPoin,
+      rank: rank.nama,
+      update: Date.now()
+    });
+  }
+});
+
+// ============================================================
+// JALANKAN
+// ============================================================
+init();
+
+console.log('%c🎓 KUIS ADRIL LOADED', 'color:#00ffff;font-size:16px;font-weight:bold;');
+console.log('%cFitur: 30 soal • Rank • Leaderboard • Sertifikat • Playlist Musik', 'color:#ffd700;');
+console.log('%cPemilik: Adril', 'color:#00ff88;');
+</script>
+</body>
+  <!-- ========================================================= -->
+<!-- 👑 PANEL CHEAT ADMIN — KHUSUS PEMILIK GAME (ADRIL)        -->
+<!-- ========================================================= -->
+<div id="adminPanel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.95);z-index:99999;padding:20px;overflow-y:auto;color:#fff;font-family:'Courier New',monospace;">
+  <h1 style="color:#ffd700;text-align:center;margin-bottom:20px;">👑 PANEL ADMIN</h1>
+  <p style="text-align:center;color:#aaa;margin-bottom:20px;font-size:12px;">Khusus Pemilik: Adril</p>
+  
+  <div style="background:#1a1a3a;border:2px solid #ffd700;border-radius:12px;padding:16px;margin-bottom:12px;">
+    <h2 style="color:#00ffff;font-size:14px;margin-bottom:10px;">💰 POIN & RANK</h2>
+    <button onclick="cheatTambahPoin(100)" style="background:#00ff88;color:#000;border:none;padding:10px 16px;border-radius:8px;font-weight:700;margin:4px;cursor:pointer;">+100 Poin</button>
+    <button onclick="cheatTambahPoin(1000)" style="background:#00ff88;color:#000;border:none;padding:10px 16px;border-radius:8px;font-weight:700;margin:4px;cursor:pointer;">+1000 Poin</button>
+    <button onclick="cheatTambahPoin(10000)" style="background:#00ff88;color:#000;border:none;padding:10px 16px;border-radius:8px;font-weight:700;margin:4px;cursor:pointer;">+10000 Poin</button>
+    <button onclick="cheatSetPoin()" style="background:#ffd700;color:#000;border:none;padding:10px 16px;border-radius:8px;font-weight:700;margin:4px;cursor:pointer;">Set Poin Manual</button>
+  </div>
+  
+  <div style="background:#1a1a3a;border:2px solid #ffd700;border-radius:12px;padding:16px;margin-bottom:12px;">
+    <h2 style="color:#00ffff;font-size:14px;margin-bottom:10px;">🎯 SAAT KUIS BERJALAN</h2>
+    <button onclick="cheatAutoBenar()" style="background:#00ff88;color:#000;border:none;padding:10px 16px;border-radius:8px;font-weight:700;margin:4px;cursor:pointer;">✅ Auto Benar</button>
+    <button onclick="cheatAutoBenarSemua()" style="background:#ff0066;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:700;margin:4px;cursor:pointer;">✅✅ Auto Benar SEMUA 30</button>
+    <button onclick="cheatSkipSoal()" style="background:#66aaff;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:700;margin:4px;cursor:pointer;">⏭️ Skip Soal</button>
+    <button onclick="cheatSelesaiKuis()" style="background:#ffaa00;color:#000;border:none;padding:10px 16px;border-radius:8px;font-weight:700;margin:4px;cursor:pointer;">🏁 Selesai Sekarang</button>
+  </div>
+  
+  <div style="background:#1a1a3a;border:2px solid #ffd700;border-radius:12px;padding:16px;margin-bottom:12px;">
+    <h2 style="color:#00ffff;font-size:14px;margin-bottom:10px;">🏆 SERTIFIKAT & RANK</h2>
+    <button onclick="cheatBukaSertifikat()" style="background:#ffd700;color:#000;border:none;padding:10px 16px;border-radius:8px;font-weight:700;margin:4px;cursor:pointer;">🎓 Buka Sertifikat</button>
+    <button onclick="cheatSetRank()" style="background:#cc66ff;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:700;margin:4px;cursor:pointer;">👑 Set Rank</button>
+  </div>
+  
+  <div style="background:#1a1a3a;border:2px solid #ffd700;border-radius:12px;padding:16px;margin-bottom:12px;">
+    <h2 style="color:#00ffff;font-size:14px;margin-bottom:10px;">👻 MODE INVISIBLE</h2>
+    <button onclick="cheatToggleInvisible()" style="background:#666;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:700;margin:4px;cursor:pointer;" id="btnInvisible">👻 Aktifkan Invisible</button>
+    <p style="color:#aaa;font-size:11px;margin-top:8px;">Invisible = poin nggak muncul di leaderboard</p>
+  </div>
+  
+  <div style="background:#1a1a3a;border:2px solid #ff0066;border-radius:12px;padding:16px;margin-bottom:12px;">
+    <h2 style="color:#ff0066;font-size:14px;margin-bottom:10px;">⚠️ RESET (HATI-HATI!)</h2>
+    <button onclick="cheatResetSemua()" style="background:#ff0066;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:700;margin:4px;cursor:pointer;">🗑️ Reset Data Saya</button>
+    <button onclick="cheatResetLeaderboard()" style="background:#ff0066;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:700;margin:4px;cursor:pointer;">🗑️ Reset Semua Leaderboard</button>
+  </div>
+  
+  <button onclick="tutupAdmin()" style="width:100%;background:#333;color:#fff;border:none;padding:14px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;margin-top:10px;">❌ TUTUP PANEL</button>
+</div>
+
+<!-- Tombol tersembunyi untuk buka panel (tap 5x di pojok kiri atas) -->
+<div id="adminTrigger" style="position:fixed;top:0;left:0;width:60px;height:60px;z-index:99998;cursor:pointer;"></div>
+
+<script>
+// ============================================================
+// 👑 PANEL CHEAT ADMIN — KHUSUS ADRIL
+// ============================================================
+var PASSWORD_ADMIN = 'adril123';   // 🔑 GANTI PASSWORD DI SINI
+var tapCount = 0;
+var tapTimer = null;
+var invisibleMode = false;
+
+// Buka panel dengan tap 5x di pojok kiri atas
+document.getElementById('adminTrigger').addEventListener('click', function(){
+  tapCount++;
+  clearTimeout(tapTimer);
+  tapTimer = setTimeout(function(){ tapCount = 0; }, 1500);
+  if(tapCount >= 5){
+    tapCount = 0;
+    mintaPassword();
+  }
+});
+
+// Support touch
+document.getElementById('adminTrigger').addEventListener('touchstart', function(e){
+  e.preventDefault();
+  tapCount++;
+  clearTimeout(tapTimer);
+  tapTimer = setTimeout(function(){ tapCount = 0; }, 1500);
+  if(tapCount >= 5){
+    tapCount = 0;
+    mintaPassword();
+  }
+});
+
+function mintaPassword(){
+  var pass = prompt('🔑 Masukkan Password Admin:');
+  if(pass === PASSWORD_ADMIN){
+    document.getElementById('adminPanel').style.display = 'block';
+    showNotif('👑 Panel Admin Dibuka!', '#ffd700');
+  } else if(pass !== null){
+    showNotif('❌ Password Salah!', '#ff0066');
+  }
+}
+
+function tutupAdmin(){
+  document.getElementById('adminPanel').style.display = 'none';
+}
+
+// ============================================================
+// 💰 CHEAT POIN
+// ============================================================
+function cheatTambahPoin(jumlah){
+  myPoin += jumlah;
+  simpanProfil();
+  updateRankBadge();
+  kirimKeLeaderboard();
+  showNotif('💰 +' + jumlah + ' poin! Total: ' + myPoin, '#00ff88');
+  console.log('💎 Poin sekarang:', myPoin);
+}
+
+function cheatSetPoin(){
+  var v = prompt('Masukkan jumlah poin:', myPoin);
+  if(v === null) return;
+  var n = parseInt(v);
+  if(isNaN(n)){ showNotif('❌ Angka tidak valid', '#ff0066'); return; }
+  myPoin = n;
+  simpanProfil();
+  updateRankBadge();
+  kirimKeLeaderboard();
+  showNotif('💰 Poin diset: ' + myPoin, '#ffd700');
+}
+
+// ============================================================
+// 🎯 CHEAT KUIS
+// ============================================================
+function cheatAutoBenar(){
+  if(!gameRunning || sudahJawab){ showNotif('❌ Kuis tidak berjalan', '#ff0066'); return; }
+  var soal = soalPemain[indeksSoal];
+  var semua = document.querySelectorAll('#pilihanBox button');
+  if(semua.length === 0){ showNotif('❌ Tombol belum muncul', '#ff0066'); return; }
+  jawabPilih(soal.jawaban, semua[soal.jawaban]);
+  showNotif('✅ Auto Benar!', '#00ff88');
+}
+
+function cheatAutoBenarSemua(){
+  if(!gameRunning){ showNotif('❌ Kuis tidak berjalan', '#ff0066'); return; }
+  var sisa = soalPemain.length - indeksSoal;
+  var poinDapat = 0;
+  for(var i = indeksSoal; i < soalPemain.length; i++){
+    var s = soalPemain[i];
+    var dasar = 10;
+    if(s.kategori === 'SD') dasar = 5;
+    else if(s.kategori === 'SMP') dasar = 10;
+    else if(s.kategori === 'SMA') dasar = 15;
+    else if(s.kategori === 'SMK') dasar = 20;
+    else if(s.kategori === 'KULIAH') dasar = 30;
+    poinDapat += dasar + 5;
+    // Tandai soal sudah dijawab
+    var soalIdx = BANK_SOAL.indexOf(s);
+    if(soalIdx >= 0 && soalSudahDijawab.indexOf(soalIdx) === -1){
+      soalSudahDijawab.push(soalIdx);
+    }
+  }
+  myPoin += poinDapat;
+  simpanProfil();
+  // Set semua benar
+  document.getElementById('benarSaya').textContent = soalPemain.length;
+  document.getElementById('poinSaya').textContent = myPoin;
+  updateRankBadge();
+  kirimKeLeaderboard();
+  // Langsung selesai
+  if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+  indeksSoal = soalPemain.length;
+  gameRunning = false;
+  document.getElementById('quizBox').classList.add('hide');
+  showNotif('✅✅ Semua ' + sisa + ' soal auto benar! +' + poinDapat, '#ff0066');
+  setTimeout(function(){ tampilkanSertifikat(); }, 500);
+}
+
+function cheatSkipSoal(){
+  if(!gameRunning){ showNotif('❌ Kuis tidak berjalan', '#ff0066'); return; }
+  if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+  sudahJawab = true;
+  indeksSoal++;
+  if(indeksSoal >= soalPemain.length){ selesaiKuis(); }
+  else { mulaiSoalSekarang(); }
+  showNotif('⏭️ Skip soal', '#66aaff');
+}
+
+function cheatSelesaiKuis(){
+  if(!gameRunning){ showNotif('❌ Kuis tidak berjalan', '#ff0066'); return; }
+  if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+  indeksSoal = soalPemain.length;
+  selesaiKuis();
+  showNotif('🏁 Kuis diselesaikan', '#ffaa00');
+}
+
+// ============================================================
+// 🏆 CHEAT SERTIFIKAT & RANK
+// ============================================================
+function cheatBukaSertifikat(){
+  if(!myNama){
+    showNotif('❌ Isi nama dulu!', '#ff0066');
+    return;
+  }
+  tutupAdmin();
+  document.getElementById('overlay').classList.remove('hide');
+  document.getElementById('quizBox').classList.add('hide');
+  tampilkanSertifikat();
+  showNotif('🎓 Sertifikat dibuka!', '#ffd700');
+}
+
+function cheatSetRank(){
+  var ranks = DAFTAR_RANK.map(function(r, i){ return (i+1) + '. ' + r.nama + ' (' + r.minPoin + ' poin)'; }).join('\n');
+  var pilih = prompt('Pilih rank (ketik nomor 1-' + DAFTAR_RANK.length + '):\n\n' + ranks);
+  if(pilih === null) return;
+  var idx = parseInt(pilih) - 1;
+  if(isNaN(idx) || idx < 0 || idx >= DAFTAR_RANK.length){
+    showNotif('❌ Pilihan tidak valid', '#ff0066');
+    return;
+  }
+  myPoin = DAFTAR_RANK[idx].minPoin;
+  simpanProfil();
+  updateRankBadge();
+  kirimKeLeaderboard();
+  showNotif('👑 Rank diset: ' + DAFTAR_RANK[idx].nama, '#ffd700');
+}
+
+// ============================================================
+// 👻 CHEAT INVISIBLE MODE
+// ============================================================
+function cheatToggleInvisible(){
+  invisibleMode = !invisibleMode;
+  var btn = document.getElementById('btnInvisible');
+  if(invisibleMode){
+    btn.textContent = '👻 Invisible AKTIF';
+    btn.style.background = '#ff0066';
+    // Hapus dari leaderboard
+    if(firebaseOK) dbRef.child('leaderboard/' + myId).remove();
+    showNotif('👻 Invisible Mode Aktif!', '#666');
+  } else {
+    btn.textContent = '👻 Aktifkan Invisible';
+    btn.style.background = '#666';
+    // Kirim ulang ke leaderboard
+    if(firebaseOK && myNama) kirimKeLeaderboard();
+    showNotif('👁️ Invisible Mode Mati', '#00ff88');
+  }
+}
+
+// Override kirimKeLeaderboard biar respect invisible mode
+var _kirimKeLeaderboardAsli = kirimKeLeaderboard;
+kirimKeLeaderboard = function(){
+  if(invisibleMode) return;
+  _kirimKeLeaderboardAsli();
+};
+
+// ============================================================
+// 🗑️ CHEAT RESET
+// ============================================================
+function cheatResetSemua(){
+  if(!confirm('⚠️ Yakin reset semua data kamu?\n\nPoin, history soal, dan leaderboard kamu akan dihapus!')) return;
+  if(!confirm('⚠️⚠️ KONFIRMASI TERAKHIR!\n\nData TIDAK BISA dikembalikan!')) return;
+  
+  // Reset localStorage
+  try {
+    localStorage.removeItem('kuisAdrilNama');
+    localStorage.removeItem('kuisAdrilPoin');
+    localStorage.removeItem('kuisAdrilSoal');
+    localStorage.removeItem('kuisAdrilId');
+  } catch(e){}
+  
+  // Reset dari leaderboard
+  if(firebaseOK) dbRef.child('leaderboard/' + myId).remove();
+  
+  myPoin = 0;
+  soalSudahDijawab = [];
+  myNama = '';
+  
+  showNotif('🗑️ Data direset! Reload halaman...', '#ff0066');
+  setTimeout(function(){ location.reload(); }, 1500);
+}
+
+function cheatResetLeaderboard(){
+  if(!confirm('⚠️ Yakin hapus SEMUA pemain dari leaderboard?\n\nIni akan menghapus skor SEMUA ORANG (bukan hanya kamu)!')) return;
+  if(!confirm('⚠️⚠️ KONFIRMASI TERAKHIR!\n\nLeaderboard akan KOSONG!')) return;
+  
+  if(!firebaseOK){ showNotif('❌ Firebase tidak terhubung', '#ff0066'); return; }
+  
+  dbRef.child('leaderboard').remove().then(function(){
+    showNotif('🗑️ Leaderboard direset!', '#ff0066');
+  }).catch(function(err){
+    showNotif('❌ Gagal: ' + err.message, '#ff0066');
+  });
+}
+
+// Info console
+console.log('%c👑 PANEL ADMIN — KHUSUS ADRIL', 'color:#ffd700;font-size:18px;font-weight:bold;background:#000;padding:8px;');
+console.log('%cCara buka: Tap 5x di POJOK KIRI ATAS layar', 'color:#00ffff;font-size:13px;');
+console.log('%cPassword default: adril123 (ganti di kode!)', 'color:#ff0066;font-size:13px;');
+</script>
+</body>
+</html>
